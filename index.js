@@ -7,7 +7,9 @@ const port = process.env.PORT || 5000;
 
 // middleware
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://coffee-store-server-three-bay.vercel.app'],
+}));
 app.use(express.json());
 
 console.log(process.env.DB_USER);
@@ -96,6 +98,24 @@ async function run() {
       const user = req.body;
       console.log(user);
       const result = await userCollection.insertOne(user);
+      res.send(result);
+    })
+    app.patch('/user',async (req ,res)=>{
+      const user = req.body;
+      const filter = {email: user.email}
+      const updateDoc ={
+        $set:{
+          lastLoggedAt: user.lastLoggedAt
+        }
+      }
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+
+    app.delete('/user/:id', async(req , res) =>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await userCollection.deleteOne(query);
       res.send(result);
     })
 
